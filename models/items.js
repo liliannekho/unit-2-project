@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const ObjectID = mongoose.Schema.Types.ObjectId
 
 const itemSchema = mongoose.Schema({
-    owner: {type: ObjectID, required: true, ref: 'User'}
+    userId: {type: ObjectID, required: true, ref: 'User'},
     name: {type: String, required: true},
     description: {type: String, required: true},
     category: {type: String, required: true},
