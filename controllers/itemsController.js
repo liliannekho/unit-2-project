@@ -1,5 +1,5 @@
-const Item = require('../models/items')
-const Todo = require('../models/items')
+const Item = require('../models/item')
+const Todo = require('../models/item')
 const User = require('../models/user')
 
 exports.create = async function (req,res){

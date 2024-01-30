@@ -1,6 +1,5 @@
 const express = require('express')
 const User = require('../models/user')
-const Auth = require('../middleware/auth')
 
 const router = new express.Router()
 
@@ -31,7 +30,7 @@ router.post('/users/login', async (req, res) => {
 })
 
 //logout
-router.post('/users/logout', Auth, async (req, res) => {
+router.post('/users/logout', async (req, res) => {
    
     try {
        req.user.tokens =  req.user.tokens.filter((token) => {
@@ -46,7 +45,7 @@ router.post('/users/logout', Auth, async (req, res) => {
 })
 
 //Logout All 
-router.post('/users/logoutAll', Auth, async(req, res) => {
+router.post('/users/logoutAll', async(req, res) => {
     try {
         req.user.tokens = []
         await req.user.save()
