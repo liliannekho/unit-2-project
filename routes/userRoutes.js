@@ -1,57 +1,12 @@
 const express = require('express')
 const User = require('../models/user')
+const userControllers = require('../controllers/userControllers')
 
-const router = new express.Router()
+const router = new express.Router();
 
-//signup
-router.post('/users', async (req, res) => {
-    const user = new User(req.body)
+router.post('/', userControllers.createUser); //Postman test came out good
+router.post('/login', userControllers.loginUser); //postman test good
+router.put('/:id', userControllers.updateUser); //postman test good
+router.delete('/:id', userControllers.auth, userControllers.deleteUser); //Test did not work
 
-    try {
-        await user.save()
-        const token = await user.generateAuthToken()
-        res.status(201).send({user, token})
-    } catch (error) {
-        res.status(400).send(error)
-    }
-
-})
-
-//login
-
-router.post('/users/login', async (req, res) => {
-    try {
-        const user = await User.findByCredentials(req.body.email, req.body.password)
-        const token = await user.generateAuthToken()
-        res.send({ user, token})
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
-
-//logout
-router.post('/users/logout', async (req, res) => {
-   
-    try {
-       req.user.tokens =  req.user.tokens.filter((token) => {
-            return token.token !== req.token 
-        })
-
-        await req.user.save()
-        res.send()
-    } catch (error) {
-        res.status(500).send()
-    }
-})
-
-//Logout All 
-router.post('/users/logoutAll', async(req, res) => {
-    try {
-        req.user.tokens = []
-        await req.user.save()
-        res.send()
-    } catch (error) {
-        res.status(500).send()        
-    }
-})
-module.exports = router
+module.exports = router;

@@ -1,86 +1,21 @@
-const express = require('express')
-const Item = require('../models/item')
-const Auth = require('../middleware/auth')
+const express = require('express');
+const Item = require('../models/item');
+const itemsController = require('../controllers/itemsController');
+const router = express.Router();
 
-const router = new express.Router()
+// Create a new item
+router.post('/create', itemsController.createItem);
 
-//fetch all items
-router.get('/items', async(req, res) => {
-    try {
-        const items = await Item.find({})
-        res.status(200).send(items)
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
+// Get all items
+router.get('/items', itemsController.getAllItems);
 
-//fetch an item
-router.get('/items/:id', async(req, res) => {
-    try{
-        const item = await Item.findOne({_id: req.params.id})
-        if(!item) {
-            res.status(404).send({error: "Item not found"})
-        }
-        res.status(200).send(item) 
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
+// Get a single item by ID
+router.get('/items/:id', itemsController.getItembyId);
 
-//create an item
-router.post('/items', async(req, res) => {
-    try {
-        const newItem = new Item({
-            ...req.body,
-            owner: req.user._id
-        })
-        await newItem.save()
-        res.status(201).send(newItem)
-    } catch (error) {
-        console.log({error})
-        res.status(400).send({message: "error"})
-    }
-})
+// Update an item by ID
+router.put('/items/:id', itemsController.updateItem);
 
-//update an item
+// Delete an item by ID
+router.delete('/items/:id', itemsController.deleteItem);
 
-router.patch('/items/:id', async(req, res) => {
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['name', 'description', 'category', 'price']
-
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-
-    if(!isValidOperation) {
-        return res.status(400).send({ error: 'invalid updates'})
-    }
-
-    try {
-        const item = await Item.findOne({ _id: req.params.id})
-    
-        if(!item){
-            return res.status(404).send()
-        }
-
-        updates.forEach((update) => item[update] = req.body[update])
-        await item.save()
-        res.send(item)
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
-
-//delete item
-router.delete('/items/:id', async(req, res) => {
-    try {
-        const deletedItem = await Item.findOneAndDelete( {_id: req.params.id} )
-        if(!deletedItem) {
-            res.status(404).send({error: "Item not found"})
-        }
-        res.send(deletedItem)
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
-
-
-module.exports = router
+module.exports = router;

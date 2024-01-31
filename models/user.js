@@ -3,42 +3,27 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-
-const UserSchema = new mongoose.Schema({
-    name: {type: String, required: true},
-    email: {type: String, required: true, unique: true},
-    password: {type: String, required: true},
-},
-    {
-    timestamps: true
+const userSchema = new mongoose.Schema({
+    name: String,
+    email: String, 
+    password: String
 })
 
-UserSchema.pre('save', async function(next){
-    this.isModified('password')?
-    this.password = await bcrypt.hash(this.password, 8):
-    null;
+//this is where the encryption happens 
+userSchema.pre('save', async function(next) {
+    if (this.isModified('password')) {
+      this.password = await bcrypt.hash(this.password, 8)
+    }
     next()
-})
+  })
 
-UserSchema.methods.generateAuthToken = async function(){
-    const token = jwt.sign({ _id: this._id}, process.env.SECRET)
+//the above listens for the save and then will update the password and re-encrypt the password 
+
+userSchema.methods.generateAuthToken = async function(){
+    const token = jwt.sign({ _id: this._id}, 'secret')
     return token
 }
 
-UserSchema.statics.findByCredentials = async (email, password) => {
-    const user = await User.findOne({ email })
-    if (!user) {
-        throw new Error('Unable to log in')
-    }
-    const isMatch = await bcrypt.compare(password, user.password)
-    console.log(isMatch)
-    if(!isMatch) {
-        throw new Error('Unable to login')
-    }
-
-    return user
-}
-
-const User = mongoose.model('User', UserSchema)
+const User = mongoose.model('User', userSchema)
 
 module.exports = User

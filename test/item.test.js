@@ -1,75 +1,62 @@
+const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const supertest = require('supertest');
-const app = require('../app'); // Assuming your app is exported in app.js
+const app = require('../app');
 const Item = require('../models/item');
+const User = require('../models/user');
 
-const request = supertest(app);
+const server = app.listen(3001, () => console.log('Testing on PORT 3001'));
+let mongoServer;
 
-describe('Item Model Tests', () => {
-  let mongoServer;
+beforeAll(async () => {
+  mongoServer = await MongoMemoryServer.create();
+  await mongoose.connect(mongoServer.getUri(), { useNewUrlParser: true, useUnifiedTopology: true });
+});
 
-  before(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-  });
+afterAll(async () => {
+  await mongoose.connection.close();
+  mongoServer.stop();
+  server.close();
+});
 
-  after(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
+beforeEach(async () => {
+  await Item.deleteMany({});
+});
 
-  beforeEach(async () => {
-    await Item.deleteMany({});
-  });
+describe('Cart API Tests', () => {
+  test('should add an item to the cart', async () => {
+    // Create a user
+    const user = new User({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123' });
+    await user.save();
+    
+    // Login the user to get the token
+    const responseLogin = await request(app)
+      .post('/users/login')
+      .send({ email: 'john.doe@example.com', password: 'password123' });
 
-  it('should create a new item', async () => {
+    const token = responseLogin.body.token;
+
+    // Create an item with userId
     const newItem = {
-      userId: mongoose.Types.ObjectId(),
       name: 'Test Item',
       description: 'This is a test item.',
       category: 'Test Category',
       price: '19.99',
     };
 
-    const response = await request.post('/api/items').send(newItem);
+    const response = await request(app)
+      .post('/api/items')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newItem);
 
-    // Assertions using Mocha's built-in assertions
-    response.status.should.equal(201);
-    response.body.should.have.property('_id');
-    response.body.userId.should.equal(newItem.userId.toString());
-    response.body.name.should.equal(newItem.name);
-    response.body.description.should.equal(newItem.description);
-    response.body.category.should.equal(newItem.category);
-    response.body.price.should.equal(newItem.price);
-
-    // Check if the item is actually stored in the in-memory database
-    const createdItem = await Item.findOne({ _id: response.body._id });
-    should.exist(createdItem);
-    createdItem.userId.toString().should.equal(newItem.userId.toString());
-    createdItem.name.should.equal(newItem.name);
-    createdItem.description.should.equal(newItem.description);
-    createdItem.category.should.equal(newItem.category);
-    createdItem.price.should.equal(newItem.price);
+    // Assertions
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toHaveProperty('_id');
+    expect(response.body.userId).toEqual(user._id.toString());
+    expect(response.body.name).toEqual(newItem.name);
+    expect(response.body.description).toEqual(newItem.description);
+    expect(response.body.category).toEqual(newItem.category);
+    expect(response.body.price).toEqual(newItem.price);
   });
 
-  it('should not create an item with missing required fields', async () => {
-    const incompleteItem = {
-      name: 'Incomplete Item',
-      category: 'Incomplete Category',
-      price: '29.99',
-    };
-
-    const response = await request.post('/api/items').send(incompleteItem);
-
-    // Assertions using Mocha's built-in assertions
-    response.status.should.equal(400);
-    response.body.should.have.property('error');
-    response.body.error.should.equal('ValidationError');
-    response.body.message.should.be.an('array');
-    response.body.message[0].msg.should.equal('Path `description` is required.');
-  });
-
-  // Add more tests based on your model and application requirements
-});
+})

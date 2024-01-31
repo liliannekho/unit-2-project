@@ -2,7 +2,7 @@ const Item = require('../models/item')
 const Todo = require('../models/item')
 const User = require('../models/user')
 
-exports.create = async function (req,res){
+exports.createItem = async function (req,res){
     try{
         req.body.user = req.user._id
         const item = await Item.create(req.body)
@@ -16,7 +16,10 @@ exports.create = async function (req,res){
     }
 }
 
-exports.show = async function (req, res) {
+
+  
+
+exports.getItembyId = async function (req, res) {
     try{
         const item = await Item.findOne({ _id: req.params.id })
         res.json(item)
@@ -25,7 +28,7 @@ exports.show = async function (req, res) {
     }
 }
 
-exports.indexComplete = async function (req, res) {
+exports.getAllItems = async function (req, res) {
     try{
         const items = await Item.find({ completed: true, user: req.user._id })
         res.json(items)
@@ -34,7 +37,7 @@ exports.indexComplete = async function (req, res) {
     }
 }
 
-exports.indexNotComplete = async function (req, res) {
+exports.indexConplete = async function (req, res) {
     try{
         const items = await Item.find({ completed: false, user: req.user._id})
         res.json(items)
@@ -43,7 +46,7 @@ exports.indexNotComplete = async function (req, res) {
     }
 }
 
-exports.update = async function (req,res){
+exports.updateItem = async function (req,res){
     try{
         const item = await Item.findOneAndUpdate({ _id: req.params.id}, req.body, { new: true})
         res.json(item)
@@ -52,7 +55,7 @@ exports.update = async function (req,res){
     }
 }
 
-exports.delete = async function (req,res){
+exports.deleteItem = async function (req,res){
     try{
         const item = await Item.findOneAndDelete({ _id: req.params.id})
         res.sendStatus(204)
