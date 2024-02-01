@@ -1,23 +1,22 @@
 const Item = require('../models/item')
-const Todo = require('../models/item')
 const User = require('../models/user')
 
-exports.createItem = async function (req,res){
-    try{
-        req.body.user = req.user._id
-        const item = await Item.create(req.body)
-        req.user.items?
-        req.user.items.addToSet({ _id: item._id}):
-        req.user.items = ({_id: item._id})
-        await req.user.save()
-        res.json(item)
-    } catch(error) {
-        res.status(400).json({ message: error.message})
+exports.createItem = async function (req, res) {
+    try {
+        req.body.userId = req.user._id;
+        const item = await Item.create(req.body);
+        
+        req.user.items ?
+          req.user.items.addToSet({ _id: item._id }) :
+          req.user.items = [{ _id: item._id }];
+
+        await req.user.save();
+        res.status(201).json(item);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
 }
 
-
-  
 
 exports.getItembyId = async function (req, res) {
     try{
@@ -30,21 +29,21 @@ exports.getItembyId = async function (req, res) {
 
 exports.getAllItems = async function (req, res) {
     try{
-        const items = await Item.find({ completed: true, user: req.user._id })
+        const items = await Item.find({ completed: true, user: req.userId._id })
         res.json(items)
     } catch (error) {
         res.status(400).json({ message: error.message})
     }
 }
 
-exports.indexConplete = async function (req, res) {
-    try{
-        const items = await Item.find({ completed: false, user: req.user._id})
-        res.json(items)
-    } catch (error) {
-        res.status(400).json({ message: error.message})
-    }
-}
+// exports.indexComplete = async function (req, res) {
+//     try{
+//         const items = await Item.find({ completed: false, user: req.user._id})
+//         res.json(items)
+//     } catch (error) {
+//         res.status(400).json({ message: error.message})
+//     }
+// }
 
 exports.updateItem = async function (req,res){
     try{

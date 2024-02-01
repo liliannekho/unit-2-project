@@ -1,16 +1,22 @@
-// controllers/cartControllers.js
-
 const Cart = require('../models/cart');
 
 exports.createCart = async (req, res) => {
     try {
-        const cart = new Cart({ ...req.body, userId: req.user._id });
+        // Check if a cart already exists for the user
+        const existingCart = await Cart.findOne({ userId: req.user._id });
+
+        if (existingCart) {
+            return res.status(400).json({ error: 'Cart already exists for this user' });
+        }
+
+        const cart = new Cart({ userId: req.user._id, ...req.body });
         await cart.save();
         res.status(201).json(cart);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 exports.getCart = async (req, res) => {
     try {

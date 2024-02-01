@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 exports.auth = async (req, res, next) => {
     try{
         const token = req.header('Authorization').replace('Bearer ', '')
-        const data = jwt.verify(token, process.env.SECRET)
+        const data = jwt.verify(token, 'secret')
         const user = await User.findOne({ _id: data._id})
         if (!user){
             throw new Error('bad credentials')

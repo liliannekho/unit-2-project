@@ -43,7 +43,7 @@ describe('Cart API Tests', () => {
       .post('/api/cart/add')
       .send({ itemId: createdItem._id, quantity: 2 });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('cart');
     expect(response.body.cart.items).toHaveLength(1);
     expect(response.body.cart.items[0].itemId).toEqual(createdItem._id.toString());
@@ -72,4 +72,51 @@ describe('Cart API Tests', () => {
     expect(response.body.cart.items[0].quantity).toEqual(2);
     expect(response.body.cart.bill).toEqual(2 * createdItem.price);
   });
+});
+
+
+it('should update an item in the cart', async () => {
+  const newItem = {
+    name: 'Test Item',
+    description: 'This is a test item.',
+    category: 'Test Category',
+    price: 19.99,
+  };
+
+  const createdItem = await Item.create(newItem);
+
+  await Cart.create({ userId: 'testUser', items: [{ itemId: createdItem._id, quantity: 2 }] });
+
+  const response = await request
+    .put(`/api/cart/update/${createdItem._id}`)
+    .send({ quantity: 3 });
+
+  expect(response.status).toBe(200);
+  expect(response.body).toHaveProperty('cart');
+  expect(response.body.cart.items).toHaveLength(1);
+  expect(response.body.cart.items[0].itemId).toEqual(createdItem._id.toString());
+  expect(response.body.cart.items[0].quantity).toEqual(3);
+  expect(response.body.cart.bill).toEqual(3 * createdItem.price);
+});
+
+it('should delete an item from the cart', async () => {
+  const newItem = {
+    name: 'Test Item',
+    description: 'This is a test item.',
+    category: 'Test Category',
+    price: 19.99,
+  };
+
+  const createdItem = await Item.create(newItem);
+
+  await Cart.create({ userId: 'testUser', items: [{ itemId: createdItem._id, quantity: 2 }] });
+
+  const response = await request
+    .delete(`/api/cart/delete/${createdItem._id}`);
+
+  expect(response.status).toBe(204);
+
+  const cart = await Cart.findOne({ userId: 'testUser' });
+  expect(cart.items).toHaveLength(0);
+  expect(cart.bill).toEqual(0);
 });
