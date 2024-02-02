@@ -68,8 +68,6 @@ describe('Cart Model Tests', () => {
       .set('Authorization', `Bearer ${token}`)
       .send(newCart);
 
-      
-    //save created cart for later
     createdCart = response.body
 
     expect(response.statusCode).toBe(201);
@@ -83,28 +81,6 @@ describe('Cart Model Tests', () => {
 
 // //get test
 test('should get user cart', async () => {
-  // const user = new User({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123' });
-  // await user.save();
-  // const token = await user.generateAuthToken();
-
-  const createdItem = await Item.create({
-    name: 'apple',
-    description: 'fruit',
-    category: 'fruits & veg',
-    price: 1.99,
-    userId: user._id,
-  });
-
-  const createdCart = await Cart.create({
-    userId: user._id, 
-    items: [
-      {
-        itemId: createdItem._id, 
-        quantity: 2
-      },
-    ],
-    bill: 3.98
-  });
 
   const response = await request(app).get(`/carts/${user._id}`)
     .set('Authorization', `Bearer ${token}`)
@@ -115,36 +91,7 @@ test('should get user cart', async () => {
 });
 
 test('should update cart', async () => {
-  // const user = new User({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123' });
-  // await user.save();
-  // const token = await user.generateAuthToken();
-
-  // const foundItem = await Item.create({
-  //   name: 'Pear',
-  //   description: 'Fruit',
-  //   category: 'Fruits & Veg',
-  //   price: 1.99,
-  //   userId: user._id,
-  // });
-
-//   const foundCart = await Cart.create({
-//     userId: user._id, 
-//     items: [
-//       {
-//         itemId: foundItem._id, 
-//         quantity: 2
-//       },
-//     ],
-//     bill: 3.98, 
-//   });
-
-//   const response = await request(app)
-//   .put(`/carts/${user._id}`)
-//   .set('Authorization', `Bearer ${token}`)
-//   .send({ items: [{ name: 'Pear' }] });
-
-//   expect(response.statusCode).toBe(200);
-//   expect(response.body.items[0].name).toEqual("Pear")
+  
 const user = new User({
   name: 'John Doe',
   email: 'john.doe@example.com',
@@ -174,7 +121,7 @@ const foundCart = await Cart.create({
   bill: 3.98,
 });
 
-const updatedQuantity = 5; // New quantity value
+const updatedQuantity = 5; 
 
 const response = await request(app)
   .put(`/carts/${user._id}`)
@@ -184,7 +131,7 @@ const response = await request(app)
 expect(response.statusCode).toBe(200);
 expect(response.body.items[0].quantity).toEqual(updatedQuantity);
 });
-// })
+
 
 test('should delete the cart', async () => {
      const response = await request(app)
