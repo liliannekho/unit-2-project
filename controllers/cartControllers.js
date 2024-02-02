@@ -53,17 +53,18 @@ exports.updateCart = async (req, res) => {
 
 exports.deleteCart = async (req, res) => {
     try {
-        const userId = req.params.userId;
-        const cart = await Cart.findOne({ userId });
+        const userId = req.params.userId
+        const cart = await Cart.findOne({ userId })
 
         if (!cart) {
-            return res.status(404).json({ error: 'Cart not found' });
+            return res.status(404).json({ error: 'Cart not found' })
         }
 
-        await cart.remove();
+        await cart.deleteOne()
 
-        res.sendStatus(204);
+        res.sendStatus(204)
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error.message })
     }
 };
+
