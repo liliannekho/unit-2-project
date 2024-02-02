@@ -81,3 +81,11 @@ router.put('/:id', itemsController.updateItem)
 
 // Delete an item by ID
 router.delete('/:id', itemsController.deleteItem)
+
+## Technologies Used
+
+* Express
+* NodeJS
+* MongoDB
+* Postman - Manual Testing
+* Jest and Supertest - Automated Testing
