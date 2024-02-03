@@ -6,7 +6,7 @@ const Item = require('../models/item');
 const User = require('../models/user');
 const Cart = require('../models/cart')
 
-const server = app.listen(3001, () => console.log('Testing on PORT 3001'));
+const server = app.listen(3003, () => console.log('Testing on PORT 3003'));
 let mongoServer;
 let user;
 let token;

@@ -13,7 +13,7 @@
     <li>touch .env</li>
     <li>code .</li>
     <li>Input your MONGO URI string into the .env file</li>
-    <li>Install dependencies using: npm init -y then npm i</li>
+    <li>Install dependencies using: npm i</li>
     <li>Start the app using: npm run dev</li>
 </ol>
 
