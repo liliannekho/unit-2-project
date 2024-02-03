@@ -9,6 +9,7 @@
     <li>Create a new directory for the API (mkdir)</li>
     <li>cd into the  new directory</li>
     <li>Git clone repository into directory: git clone "paste SSH-key git clone link"</li>
+    <li>cd into the cloned file</li>
     <li>touch .env</li>
     <li>code .</li>
     <li>Input your MONGO URI string into the .env file</li>
